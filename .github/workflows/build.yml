@@ -1,0 +1,32 @@
+name: Build Asustor Package
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Build Package
+        run: |
+          # Assuming this repo root is the asustor-minio folder content
+          python build_minio_apk.py
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: minio-asustor-apk
+          path: "*.apk"
+          if-no-files-found: error
