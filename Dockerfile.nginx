@@ -1,0 +1,28 @@
+FROM debian:stable as builder
+
+ARG NGINX_VERSION=1.28.0
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpcre3-dev \
+    zlib1g-dev \
+    libssl-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -L "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
+    tar -zxvf nginx.tar.gz && \
+    cd nginx-${NGINX_VERSION} && \
+    ./configure \
+        --with-cc-opt="-static" \
+        --with-ld-opt="-static" \
+        --prefix=/tmp/nginx \
+        --with-http_ssl_module \
+        --with-http_v2_module \
+        --without-http_rewrite_module \
+        --without-http_gzip_module && \
+    make && \
+    make install
+
+FROM scratch
+COPY --from=builder /tmp/nginx/sbin/nginx /nginx

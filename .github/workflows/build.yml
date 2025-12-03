@@ -24,9 +24,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Nginx (ARM64)
+        run: |
+          cd asustor-minio
+          # Build for ARM64 and export the binary
+          docker buildx build --platform linux/arm64 --output type=local,dest=. -f Dockerfile.nginx .
+          # The binary will be in ./nginx (from the COPY instruction in Dockerfile)
+          mv nginx nginx_bin
+
       - name: Build Package
         run: |
-          # Assuming this repo root is the asustor-minio folder content
+          cd asustor-minio
+          # The script will look for 'nginx_bin' and use it
           python build_minio_apk.py
 
       - name: Upload Artifact

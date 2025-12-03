@@ -13,8 +13,8 @@
   "adm-desktop": {
     "app": {
       "type": "custom",
-      "protocol": "http",
-      "port": 9001,
+      "protocol": "https",
+      "port": 9444,
       "url": "/"
     },
     "privilege": {
@@ -25,7 +25,9 @@
   "register": {
     "port": [
       "9000",
-      "9001"
+      "9001",
+      "9443",
+      "9444"
     ],
     "prerequisites": {
       "share-folder": [

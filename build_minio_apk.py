@@ -70,8 +70,19 @@ def build_apkg():
     shutil.copy(minio_bin_path, os.path.join(bin_dir, "minio"))
     os.chmod(os.path.join(bin_dir, "minio"), 0o755)
 
-    # 3. Process CONTROL Files
-    required_files = ["config.json", "start-stop.sh"]
+    # 3. Include Nginx (Must be provided locally, e.g. via Docker build)
+    nginx_bin_path = "nginx_bin"
+    
+    if not os.path.exists(nginx_bin_path):
+        print("ERROR: 'nginx_bin' not found! It must be built/provided before running this script.")
+        return
+    
+    print("Using local nginx_bin.")
+    shutil.copy(nginx_bin_path, os.path.join(bin_dir, "nginx"))
+    os.chmod(os.path.join(bin_dir, "nginx"), 0o755)
+
+    # 4. Process CONTROL Files
+    required_files = ["config.json", "start-stop.sh", "nginx.conf"]
     for f in required_files:
         if not os.path.exists(f):
             print(f"ERROR: {f} missing! Ensure it is in this folder.")
