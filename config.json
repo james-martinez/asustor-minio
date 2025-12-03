@@ -1,0 +1,43 @@
+{
+  "general": {
+    "package": "minio",
+    "name": "MinIO",
+    "version": "RELEASE.2025-09-07T16-13-09Z",
+    "developer": "MinIO, Inc.",
+    "maintainer": "James Martinez",
+    "email": "james-martinez@users.noreply.github.com",
+    "website": "https://min.io",
+    "architecture": "arm64",
+    "firmware": "4.0.0"
+  },
+  "adm-desktop": {
+    "app": {
+      "type": "custom",
+      "protocol": "http",
+      "port": 9001,
+      "url": "/"
+    },
+    "privilege": {
+      "accessible": "administrators",
+      "customizable": true
+    }
+  },
+  "register": {
+    "port": [
+      "9000",
+      "9001"
+    ],
+    "prerequisites": {
+      "share-folder": [
+        {
+          "name": "MinIOConfig",
+          "description": "Configuration folder for MinIO"
+        },
+        {
+          "name": "MinIOData",
+          "description": "Data storage for MinIO"
+        }
+      ]
+    }
+  }
+}
