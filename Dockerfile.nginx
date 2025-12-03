@@ -4,23 +4,37 @@ ARG NGINX_VERSION=1.28.0
 
 RUN apt-get update && apt-get install -y \
     build-essential \
-    libpcre2-dev \
-    zlib1g-dev \
-    libssl-dev \
     curl \
+    perl \
+    linux-headers-generic \
     && rm -rf /var/lib/apt/lists/*
+
+# Download OpenSSL
+RUN curl -L "https://github.com/openssl/openssl/releases/download/openssl-3.6.0/openssl-3.6.0.tar.gz" -o openssl.tar.gz && \
+    tar -zxvf openssl.tar.gz
+
+# Download PCRE
+RUN curl -L "https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.42/pcre2-10.42.tar.gz" -o pcre2.tar.gz && \
+    tar -zxvf pcre2.tar.gz
+
+# Download Zlib
+RUN curl -L "https://zlib.net/zlib-1.3.1.tar.gz" -o zlib.tar.gz && \
+    tar -zxvf zlib.tar.gz
 
 RUN curl -L "http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz && \
     tar -zxvf nginx.tar.gz && \
     cd nginx-${NGINX_VERSION} && \
     ./configure \
-        --with-cc-opt="-static" \
+        --with-cc-opt="-static -static-libgcc" \
         --with-ld-opt="-static" \
         --prefix=/tmp/nginx \
         --with-http_ssl_module \
         --with-http_v2_module \
         --without-http_rewrite_module \
-        --without-http_gzip_module && \
+        --without-http_gzip_module \
+        --with-openssl=../openssl-3.6.0 \
+        --with-pcre=../pcre2-10.42 \
+        --with-zlib=../zlib-1.3.1 && \
     make && \
     make install
 
