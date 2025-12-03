@@ -32,7 +32,6 @@ jobs:
 
       - name: Build Nginx (ARM64)
         run: |
-          cd asustor-minio
           # Build for ARM64 and export the binary
           docker buildx build --platform linux/arm64 --output type=local,dest=. -f Dockerfile.nginx .
           # The binary will be in ./nginx (from the COPY instruction in Dockerfile)
@@ -40,7 +39,6 @@ jobs:
 
       - name: Build Package
         run: |
-          cd asustor-minio
           # The script will look for 'nginx_bin' and use it
           python build_minio_apk.py
 
