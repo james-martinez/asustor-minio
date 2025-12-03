@@ -4,13 +4,14 @@ import zipfile
 import tarfile
 import shutil
 import time
+import subprocess
 
 # Configuration
 MINIO_VERSION = "RELEASE.2025-09-07T16-13-09Z"
 ARCH = "linux-arm64"
 DOWNLOAD_URL = f"https://dl.min.io/server/minio/release/{ARCH}/archive/minio.{MINIO_VERSION}"
 APK_NAME = f"minio_{MINIO_VERSION}_arm64.apk"
-ICON_URL = "https://min.io/resources/img/logo/MINIO_Bird.png" # Placeholder, ideally use a proper icon
+ICON_URL = "https://min.io/resources/img/logo/MINIO_Bird.svg"
 
 def download_file(url, filename):
     print(f"Downloading {filename} from {url}...")
@@ -99,15 +100,21 @@ def build_apkg():
         print("Using local icon.png")
         shutil.copy("icon.png", os.path.join(control_dir, "icon.png"))
     else:
-        print("No icon found, downloading default...")
-        # Note: MinIO logo might need resizing or format conversion for Asustor, but we'll download a placeholder
-        # Ideally, user should provide a 256x256 png
+        print("No icon found, downloading default SVG and converting...")
         try:
-             download_file(ICON_URL, "icon.png")
-             shutil.copy("icon.png", os.path.join(control_dir, "icon.png"))
-        except:
-             print("Failed to download icon. Creating dummy.")
-             with open(os.path.join(control_dir, "icon.png"), "wb") as f: pass # Empty file
+             download_file(ICON_URL, "icon.svg")
+             # Convert SVG to PNG using rsvg-convert (requires librsvg2-bin)
+             if shutil.which("rsvg-convert"):
+                 subprocess.run(["rsvg-convert", "-w", "256", "-h", "256", "icon.svg", "-o", "icon.png"], check=True)
+                 shutil.copy("icon.png", os.path.join(control_dir, "icon.png"))
+                 os.remove("icon.svg")
+                 os.remove("icon.png")
+             else:
+                 print("WARNING: rsvg-convert not found. Using empty icon.")
+                 with open(os.path.join(control_dir, "icon.png"), "wb") as f: pass
+        except Exception as e:
+             print(f"Failed to process icon: {e}. Creating dummy.")
+             with open(os.path.join(control_dir, "icon.png"), "wb") as f: pass
 
     # 6. Create Package
     print("Creating internal tarballs...")
